@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Prato Rápido: catálogo de receitas simples do dia a dia.">
+    <title>Prato Rápido | Receitas do dia a dia</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <!-- ===== COMMIT 1: estrutura inicial (header, main vazio, footer) ===== -->
+
+    <!-- Identificação do sistema e navegação -->
+    <header class="cabecalho">
+        <div class="marca">
+            <h1>Prato Rápido</h1>
+            <p>Receitas simples para o dia a dia</p>
+        </div>
+
+        <nav class="navegacao" aria-label="Navegação principal">
+            <ul>
+                <li><a href="#cadastro">Nova receita</a></li>
+                <li><a href="#receitas">Receitas</a></li>
+                <li><a href="#detalhes">Detalhes</a></li>
+                <li><a href="pages/sobre.html">Sobre</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="conteudo">
+
+        <!-- ===== COMMIT 2: formulário de cadastro ===== -->
+
+        <!-- Cadastro da entidade principal (Receita) -->
+        <section id="cadastro" class="cadastro">
+            <h2>Cadastrar receita</h2>
+            <p>Preencha os campos abaixo para adicionar uma nova receita ao catálogo.</p>
+
+            <form class="form-receita" action="#" method="post">
+
+                <fieldset>
+                    <legend>Informações básicas</legend>
+
+                    <label for="nome">Nome da receita</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex.: Omelete de queijo" required>
+
+                    <label for="categoria">Categoria</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="">Selecione</option>
+                        <option value="cafe-da-manha">Café da manhã</option>
+                        <option value="almoco">Almoço</option>
+                        <option value="jantar">Jantar</option>
+                        <option value="lanche">Lanche</option>
+                        <option value="sobremesa">Sobremesa</option>
+                    </select>
+
+                    <label for="tempo">Tempo de preparo (minutos)</label>
+                    <input type="number" id="tempo" name="tempo" min="1" max="600" placeholder="Ex.: 15" required>
+
+                    <label for="porcoes">Porções</label>
+                    <input type="number" id="porcoes" name="porcoes" min="1" max="50" placeholder="Ex.: 2" required>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Dificuldade</legend>
+
+                    <input type="radio" id="facil" name="dificuldade" value="facil" checked>
+                    <label for="facil">Fácil</label>
+
+                    <input type="radio" id="media" name="dificuldade" value="media">
+                    <label for="media">Média</label>
+
+                    <input type="radio" id="dificil" name="dificuldade" value="dificil">
+                    <label for="dificil">Difícil</label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Preparo</legend>
+
+                    <label for="ingredientes">Ingredientes (um por linha)</label>
+                    <textarea id="ingredientes" name="ingredientes" rows="5" placeholder="Ex.: 2 ovos&#10;50 g de queijo" required></textarea>
+
+                    <label for="modo-preparo">Modo de preparo</label>
+                    <textarea id="modo-preparo" name="modo-preparo" rows="6" placeholder="Descreva o passo a passo" required></textarea>
+
+                    <label for="imagem">Link da imagem (opcional)</label>
+                    <input type="url" id="imagem" name="imagem" placeholder="https://...">
+
+                    <input type="checkbox" id="favorita" name="favorita">
+                    <label for="favorita">Marcar como favorita</label>
+                </fieldset>
+
+                <button type="submit">Salvar receita</button>
+                <button type="reset">Limpar</button>
+            </form>
+        </section>
+
+        <!-- ===== COMMIT 3: pesquisa, filtro e ordenação ===== -->
+
+        <!-- Visualização dos itens cadastrados -->
+        <section id="receitas" class="receitas">
+            <h2>Receitas cadastradas</h2>
+
+            <form class="ferramentas" role="search" action="#">
+                <label for="pesquisa">Pesquisar</label>
+                <input type="search" id="pesquisa" name="pesquisa" placeholder="Buscar por nome ou ingrediente">
+
+                <label for="filtro-categoria">Filtrar por categoria</label>
+                <select id="filtro-categoria" name="filtro-categoria">
+                    <option value="todas">Todas</option>
+                    <option value="cafe-da-manha">Café da manhã</option>
+                    <option value="almoco">Almoço</option>
+                    <option value="jantar">Jantar</option>
+                    <option value="lanche">Lanche</option>
+                    <option value="sobremesa">Sobremesa</option>
+                </select>
+
+                <label for="ordenacao">Ordenar por</label>
+                <select id="ordenacao" name="ordenacao">
+                    <option value="nome-az">Nome (A–Z)</option>
+                    <option value="nome-za">Nome (Z–A)</option>
+                    <option value="tempo-menor">Menor tempo de preparo</option>
+                    <option value="tempo-maior">Maior tempo de preparo</option>
+                </select>
+
+                <button type="submit">Buscar</button>
+            </form>
+
+            <!-- ===== COMMIT 4: listagem com dados de exemplo ===== -->
+
+            <ul class="lista-receitas">
+                <li>
+                    <article class="receita">
+                        <img src="assets/img/sem-imagem.svg" alt="Omelete de queijo dobrada no prato" width="400" height="260">
+                        <h3>Omelete de queijo</h3>
+                        <p>Café da manhã · 10 min · 1 porção · Fácil</p>
+                        <p>Rápida, nutritiva e com ingredientes que quase sempre estão em casa.</p>
+                        <button type="button">Ver detalhes</button>
+                        <button type="button">Editar</button>
+                        <button type="button">Excluir</button>
+                    </article>
+                </li>
+
+                <li>
+                    <article class="receita">
+                        <img src="assets/img/sem-imagem.svg" alt="Prato de macarrão ao alho e óleo" width="400" height="260">
+                        <h3>Macarrão alho e óleo</h3>
+                        <p>Almoço · 20 min · 2 porções · Fácil</p>
+                        <p>Um clássico simples que fica pronto no tempo de cozinhar a massa.</p>
+                        <button type="button">Ver detalhes</button>
+                        <button type="button">Editar</button>
+                        <button type="button">Excluir</button>
+                    </article>
+                </li>
+
+                <li>
+                    <article class="receita">
+                        <img src="assets/img/sem-imagem.svg" alt="Fatias de bolo de caneca de chocolate" width="400" height="260">
+                        <h3>Bolo de caneca de chocolate</h3>
+                        <p>Sobremesa · 5 min · 1 porção · Fácil</p>
+                        <p>Feito no micro-ondas, ideal para matar a vontade de doce.</p>
+                        <button type="button">Ver detalhes</button>
+                        <button type="button">Editar</button>
+                        <button type="button">Excluir</button>
+                    </article>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ===== COMMIT 5: área de detalhes ===== -->
+
+        <!-- Visualização dos detalhes de um item -->
+        <section id="detalhes" class="detalhes">
+            <h2>Detalhes da receita</h2>
+
+            <article class="receita-detalhe">
+                <h3>Omelete de queijo</h3>
+                <img src="assets/img/sem-imagem.svg" alt="Omelete de queijo dobrada no prato" width="400" height="260">
+
+                <table>
+                    <caption>Informações da receita</caption>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Categoria</th>
+                            <td>Café da manhã</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Tempo de preparo</th>
+                            <td>10 minutos</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Porções</th>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Dificuldade</th>
+                            <td>Fácil</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Favorita</th>
+                            <td>Sim</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Ingredientes</h4>
+                <ul>
+                    <li>2 ovos</li>
+                    <li>50 g de queijo muçarela ralado</li>
+                    <li>1 colher (chá) de manteiga</li>
+                    <li>Sal e pimenta a gosto</li>
+                </ul>
+
+                <h4>Modo de preparo</h4>
+                <ol>
+                    <li>Bata os ovos com sal e pimenta.</li>
+                    <li>Derreta a manteiga em uma frigideira em fogo médio.</li>
+                    <li>Despeje os ovos e espere firmar as bordas.</li>
+                    <li>Coloque o queijo, dobre a omelete ao meio e sirva.</li>
+                </ol>
+
+                <button type="button">Editar</button>
+                <button type="button">Excluir</button>
+                <a href="#receitas">Voltar para a lista</a>
+            </article>
+
+            <!-- Conteúdo complementar -->
+            <aside class="dicas">
+                <h3>Dica do Prato Rápido</h3>
+                <p>Deixe ingredientes básicos já picados na geladeira para preparar as receitas em menos tempo durante a semana.</p>
+            </aside>
+        </section>
+
+    </main>
+
+    <!-- (continua do COMMIT 1) -->
+    <footer class="rodape">
+        <p>&copy; 2026 Prato Rápido. Trabalho da disciplina de Desenvolvimento de Interfaces Web.</p>
+        <p>Desenvolvido por Kaique Hernando Melo Monteiro.</p>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
