@@ -1,1 +1,105 @@
-/* Estilos serão feitos na Etapa 2 */
+/* =========================================================
+   PRATO RÁPIDO — Etapa 2 (CSS, Layout e Responsividade)
+   Estratégia Mobile First: os estilos base valem para telas
+   pequenas e as Media Queries (PARTE 6) adaptam para telas maiores.
+   ========================================================= */
+
+
+/* ---------- PARTE 1: Identidade visual ---------- */
+
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Nunito+Sans:wght@400;600;700&display=swap");
+
+:root {
+    /* Cores */
+    --verde: #2f6b3a;
+    --verde-escuro: #1f4a28;
+    --verde-claro: #e6f0e3;
+    --tomate: #b42318;
+    --tomate-claro: #fdecea;
+    --mostarda: #f2c14e;
+    --fundo: #f6f8f4;
+    --superficie: #ffffff;
+    --texto: #1d2620;
+    --texto-suave: #4d5a50;
+    --borda: #d5ddd3;
+
+    /* Tipografia */
+    --fonte-titulo: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --fonte-texto: "Nunito Sans", "Segoe UI", Arial, sans-serif;
+
+    /* Espaçamentos e bordas */
+    --espaco-p: 0.5rem;
+    --espaco-m: 1rem;
+    --espaco-g: 1.5rem;
+    --espaco-gg: 2.5rem;
+    --raio: 10px;
+    --raio-p: 6px;
+}
+
+/* Box Model: largura inclui padding e borda */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: var(--fundo);
+    color: var(--texto);
+    font-family: var(--fonte-texto);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--fonte-titulo);
+    line-height: 1.2;
+    margin: 0 0 var(--espaco-m);
+}
+
+h2 {
+    font-size: 1.6rem;
+    color: var(--verde-escuro);
+}
+
+h3 {
+    font-size: 1.25rem;
+}
+
+h4 {
+    font-size: 1.05rem;
+    margin-top: var(--espaco-g);
+}
+
+p {
+    margin: 0 0 var(--espaco-m);
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+a {
+    color: var(--verde);
+    font-weight: 600;
+}
+
+a:hover {
+    color: var(--verde-escuro);
+}
+
+/* Foco visível para quem navega pelo teclado */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--mostarda);
+    outline-offset: 2px;
+}
