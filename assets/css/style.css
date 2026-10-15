@@ -189,3 +189,177 @@ textarea:focus-visible {
 .rodape p {
     margin: 0;
 }
+
+
+
+/* ---------- PARTE 3: Formulário, botões e mensagens ---------- */
+
+fieldset {
+    margin: 0 0 var(--espaco-g);
+    padding: var(--espaco-m);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-p);
+}
+
+legend {
+    padding: 0 var(--espaco-p);
+    font-family: var(--fonte-titulo);
+    font-weight: 600;
+    color: var(--verde-escuro);
+}
+
+/* Campos organizados em grid (1 coluna no celular) */
+.grupo-campos {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--espaco-m);
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+label {
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="url"],
+input[type="search"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid var(--borda);
+    border-radius: var(--raio-p);
+    background-color: var(--superficie);
+    color: var(--texto);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: var(--texto-suave);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--verde);
+}
+
+textarea {
+    resize: vertical;
+}
+
+::placeholder {
+    color: #6b766d;
+}
+
+/* Radio e checkbox lado a lado com o texto */
+.opcoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espaco-g);
+}
+
+.opcao {
+    display: flex;
+    align-items: center;
+    gap: var(--espaco-p);
+}
+
+.opcao input {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: 0;
+    accent-color: var(--verde);
+}
+
+.opcao label {
+    font-weight: 400;
+}
+
+.acoes-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espaco-m);
+}
+
+/* Botões */
+.botao {
+    padding: 0.6rem 1.1rem;
+    border: 2px solid transparent;
+    border-radius: var(--raio-p);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, transform 0.1s;
+}
+
+.botao:active {
+    transform: translateY(1px);
+}
+
+.botao-primario {
+    background-color: var(--verde);
+    color: #ffffff;
+}
+
+.botao-primario:hover {
+    background-color: var(--verde-escuro);
+}
+
+.botao-secundario {
+    background-color: var(--superficie);
+    border-color: var(--verde);
+    color: var(--verde);
+}
+
+.botao-secundario:hover {
+    background-color: var(--verde-claro);
+}
+
+.botao-perigo {
+    background-color: var(--superficie);
+    border-color: var(--tomate);
+    color: var(--tomate);
+}
+
+.botao-perigo:hover {
+    background-color: var(--tomate);
+    color: #ffffff;
+}
+
+/* Mensagens de estado */
+.mensagem {
+    padding: 0.75rem var(--espaco-m);
+    border-left: 5px solid;
+    border-radius: var(--raio-p);
+    font-weight: 600;
+}
+
+.mensagem-sucesso {
+    background-color: var(--verde-claro);
+    border-color: var(--verde);
+    color: var(--verde-escuro);
+}
+
+.mensagem-info {
+    background-color: #fdf6e3;
+    border-color: var(--mostarda);
+    color: #5c4a14;
+}
+
+.mensagem-erro {
+    background-color: var(--tomate-claro);
+    border-color: var(--tomate);
+    color: var(--tomate);
+}
