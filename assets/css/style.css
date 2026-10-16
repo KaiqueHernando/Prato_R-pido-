@@ -457,3 +457,82 @@ textarea {
     gap: var(--espaco-p);
     margin-top: auto;
 }
+
+
+
+/* ---------- PARTE 5: Detalhes da receita ---------- */
+
+.detalhes-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--espaco-g);
+}
+
+.receita-detalhe img {
+    margin-bottom: var(--espaco-g);
+    border-radius: var(--raio);
+}
+
+table {
+    width: 100%;
+    margin-bottom: var(--espaco-m);
+    border-collapse: collapse;
+}
+
+caption {
+    margin-bottom: var(--espaco-p);
+    font-weight: 700;
+    text-align: left;
+}
+
+th,
+td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--borda);
+    text-align: left;
+}
+
+th {
+    width: 45%;
+    color: var(--texto-suave);
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background-color: var(--fundo);
+}
+
+.receita-detalhe ul,
+.receita-detalhe ol {
+    margin: 0 0 var(--espaco-m);
+    padding-left: 1.4rem;
+}
+
+.receita-detalhe li {
+    margin-bottom: 0.3rem;
+}
+
+.receita-detalhe .acoes {
+    margin-top: var(--espaco-g);
+}
+
+.link-voltar {
+    padding: 0.6rem 0.4rem;
+}
+
+.dicas {
+    align-self: start;
+    padding: var(--espaco-g);
+    background-color: var(--verde-claro);
+    border-left: 5px solid var(--verde);
+    border-radius: var(--raio-p);
+}
+
+.dicas h3 {
+    color: var(--verde-escuro);
+}
+
+.dicas p {
+    margin: 0;
+}
+
