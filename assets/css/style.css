@@ -363,3 +363,97 @@ textarea {
     border-color: var(--tomate);
     color: var(--tomate);
 }
+
+
+
+/* ---------- PARTE 4: Pesquisa, filtros e listagem ---------- */
+
+.ferramentas {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--espaco-m);
+    align-items: end;
+    margin-bottom: var(--espaco-g);
+    padding: var(--espaco-m);
+    background-color: var(--fundo);
+    border-radius: var(--raio-p);
+}
+
+/* Grid que se adapta sozinho à largura disponível */
+.lista-receitas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--espaco-g);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.lista-receitas > li {
+    display: flex;
+}
+
+.receita {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--superficie);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.receita:hover {
+    border-color: var(--verde);
+    box-shadow: 0 6px 18px rgba(31, 74, 40, 0.15);
+}
+
+.receita img {
+    width: 100%;
+    aspect-ratio: 400 / 260;
+    object-fit: cover;
+}
+
+.receita-corpo {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: var(--espaco-m);
+}
+
+.receita-corpo p {
+    color: var(--texto-suave);
+}
+
+.receita-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 var(--espaco-m);
+    padding: 0;
+    list-style: none;
+}
+
+.etiqueta {
+    padding: 0.15rem 0.6rem;
+    background-color: var(--verde-claro);
+    border-radius: 999px;
+    color: var(--verde-escuro);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.etiqueta-categoria {
+    background-color: var(--mostarda);
+    color: var(--texto);
+}
+
+/* Botões do card sempre no final, mesmo com textos de tamanhos diferentes */
+.acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--espaco-p);
+    margin-top: auto;
+}
