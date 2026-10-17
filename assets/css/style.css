@@ -536,3 +536,58 @@ tr:nth-child(even) {
     margin: 0;
 }
 
+
+
+/* ---------- PARTE 6: Responsividade ---------- */
+
+/* A partir de 700px os campos do formulário e as ferramentas
+   de pesquisa cabem lado a lado sem ficarem apertados. */
+@media (min-width: 700px) {
+    .grupo-campos {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .campo-largo {
+        grid-column: 1 / -1;
+    }
+
+    .ferramentas {
+        grid-template-columns: 2fr 1fr 1fr auto;
+    }
+
+    .rodape {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+/* A partir de 900px a marca e o menu cabem na mesma linha
+   e os detalhes ganham uma coluna lateral para a dica. */
+@media (min-width: 900px) {
+    .cabecalho {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--espaco-g) var(--espaco-gg);
+    }
+
+    .conteudo {
+        padding: var(--espaco-gg);
+    }
+
+    .detalhes-layout {
+        grid-template-columns: 2fr 1fr;
+    }
+
+    .rodape {
+        padding: var(--espaco-g) var(--espaco-gg);
+    }
+}
+
+/* Respeita quem prefere menos animação */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
+
