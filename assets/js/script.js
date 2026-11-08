@@ -499,3 +499,90 @@ formReceita.addEventListener("input", function (evento) {
 });
 
 formReceita.addEventListener("reset", limparErros);
+
+/* ---------- PARTE 4: Visualização de detalhes ---------- */
+
+const detalhesConteudo = document.getElementById("detalhes-conteudo");
+let idDetalhesAberto = null;
+
+function buscarReceitaPorId(id) {
+    return receitas.find((receita) => receita.id === id);
+}
+
+function criarLinhaTabela(titulo, valor) {
+    const linha = document.createElement("tr");
+    const cabecalho = criarElemento("th", "", titulo);
+    cabecalho.scope = "row";
+    linha.appendChild(cabecalho);
+    linha.appendChild(criarElemento("td", "", valor));
+    return linha;
+}
+
+function criarListaDeTextos(tag, itens) {
+    const lista = document.createElement(tag);
+    for (const texto of itens) {
+        lista.appendChild(criarElemento("li", "", texto));
+    }
+    return lista;
+}
+
+// Monta o painel de detalhes da receita escolhida
+function mostrarDetalhes(id) {
+    const receita = buscarReceitaPorId(id);
+    if (!receita) {
+        return;
+    }
+
+    idDetalhesAberto = id;
+
+    const artigo = criarElemento("article", "receita-detalhe");
+    artigo.appendChild(criarElemento("h3", "", receita.nome));
+    artigo.appendChild(criarImagem(receita.imagem, `Foto da receita ${receita.nome}`));
+
+    const tabela = document.createElement("table");
+    tabela.appendChild(criarElemento("caption", "", "Informações da receita"));
+    const corpoTabela = document.createElement("tbody");
+    corpoTabela.appendChild(criarLinhaTabela("Categoria", nomeCategoria(receita.categoria)));
+    corpoTabela.appendChild(criarLinhaTabela("Tempo de preparo", `${receita.tempo} minutos`));
+    corpoTabela.appendChild(criarLinhaTabela("Porções", String(receita.porcoes)));
+    corpoTabela.appendChild(criarLinhaTabela("Dificuldade", nomeDificuldade(receita.dificuldade)));
+    corpoTabela.appendChild(criarLinhaTabela("Favorita", receita.favorita ? "Sim" : "Não"));
+    corpoTabela.appendChild(criarLinhaTabela("Origem", receita.origem === "api" ? "Importada do TheMealDB" : "Cadastrada por você"));
+    corpoTabela.appendChild(criarLinhaTabela("Cadastrada em", new Date(receita.criadaEm).toLocaleDateString("pt-BR")));
+    tabela.appendChild(corpoTabela);
+    artigo.appendChild(tabela);
+
+    artigo.appendChild(criarElemento("h4", "", "Ingredientes"));
+    artigo.appendChild(criarListaDeTextos("ul", receita.ingredientes));
+
+    artigo.appendChild(criarElemento("h4", "", "Modo de preparo"));
+    artigo.appendChild(criarListaDeTextos("ol", receita.preparo));
+
+    const acoes = criarElemento("div", "acoes");
+    acoes.appendChild(criarBotao("Editar", "botao-secundario", "editar", receita.id));
+    acoes.appendChild(criarBotao("Excluir", "botao-perigo", "excluir", receita.id));
+    const voltar = criarElemento("a", "link-voltar", "Voltar para a lista");
+    voltar.href = "#receitas";
+    acoes.appendChild(voltar);
+    artigo.appendChild(acoes);
+
+    detalhesConteudo.replaceChildren(artigo);
+}
+
+// Volta o painel para a mensagem inicial
+function limparDetalhes() {
+    idDetalhesAberto = null;
+    detalhesConteudo.replaceChildren(criarElemento("p", "detalhes-vazio",
+        "Clique em Ver detalhes em uma receita para ver as informações completas aqui."));
+}
+
+// Um único evento na lista atende o botão "Ver detalhes" de todos os cards
+listaReceitas.addEventListener("click", function (evento) {
+    const botao = evento.target.closest("button[data-acao]");
+    if (!botao || botao.dataset.acao !== "detalhes") {
+        return;
+    }
+
+    mostrarDetalhes(botao.dataset.id);
+    document.getElementById("detalhes").scrollIntoView({ behavior: "smooth" });
+});
