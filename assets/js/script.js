@@ -586,3 +586,114 @@ listaReceitas.addEventListener("click", function (evento) {
     mostrarDetalhes(botao.dataset.id);
     document.getElementById("detalhes").scrollIntoView({ behavior: "smooth" });
 });
+
+/* ---------- PARTE 5: Edição e exclusão ---------- */
+
+const tituloForm = document.getElementById("titulo-form");
+const botaoSalvar = document.getElementById("botao-salvar");
+const botaoCancelar = document.getElementById("botao-cancelar");
+
+// Coloca os dados da receita de volta nos campos do formulário
+function preencherFormulario(receita) {
+    document.getElementById("nome").value = receita.nome;
+    document.getElementById("categoria").value = receita.categoria;
+    document.getElementById("tempo").value = receita.tempo;
+    document.getElementById("porcoes").value = receita.porcoes;
+    document.getElementById(receita.dificuldade).checked = true;
+    document.getElementById("ingredientes").value = receita.ingredientes.join("\n");
+    document.getElementById("modo-preparo").value = receita.preparo.join("\n");
+    document.getElementById("imagem").value = receita.imagem;
+    document.getElementById("favorita").checked = receita.favorita;
+}
+
+function entrarNoModoEdicao(id) {
+    const receita = buscarReceitaPorId(id);
+    if (!receita) {
+        return;
+    }
+
+    limparFormulario();
+    preencherFormulario(receita);
+    campoId.value = id;
+
+    tituloForm.textContent = `Editando: ${receita.nome}`;
+    botaoSalvar.textContent = "Salvar alterações";
+    botaoCancelar.hidden = false;
+    formReceita.classList.add("form-editando");
+
+    document.getElementById("cadastro").scrollIntoView({ behavior: "smooth" });
+    document.getElementById("nome").focus({ preventScroll: true });
+}
+
+function sairDoModoEdicao() {
+    campoId.value = "";
+    tituloForm.textContent = "Cadastrar receita";
+    botaoSalvar.textContent = "Salvar receita";
+    botaoCancelar.hidden = true;
+    formReceita.classList.remove("form-editando");
+}
+
+// Troca os dados antigos pelos novos, mantendo id, origem e data
+function atualizarReceita(id, dados) {
+    const indice = receitas.findIndex((receita) => receita.id === id);
+    if (indice === -1) {
+        return;
+    }
+
+    receitas[indice] = { ...receitas[indice], ...dados };
+    salvarReceitas();
+
+    if (idDetalhesAberto === id) {
+        mostrarDetalhes(id);
+    }
+}
+
+function excluirReceita(id) {
+    const receita = buscarReceitaPorId(id);
+    if (!receita) {
+        return;
+    }
+
+    const confirmou = confirm(`Excluir a receita "${receita.nome}"? Essa ação não pode ser desfeita.`);
+    if (!confirmou) {
+        return;
+    }
+
+    receitas = receitas.filter((item) => item.id !== id);
+    salvarReceitas();
+
+    if (campoId.value === id) {
+        limparFormulario();
+    }
+    if (idDetalhesAberto === id) {
+        limparDetalhes();
+    }
+
+    renderizarLista();
+    contador.textContent = `Receita "${receita.nome}" excluída. ${contador.textContent}`;
+}
+
+// Atende os botões Editar e Excluir dos cards e do painel de detalhes
+function tratarAcoes(evento) {
+    const botao = evento.target.closest("button[data-acao]");
+    if (!botao) {
+        return;
+    }
+
+    if (botao.dataset.acao === "editar") {
+        entrarNoModoEdicao(botao.dataset.id);
+    } else if (botao.dataset.acao === "excluir") {
+        excluirReceita(botao.dataset.id);
+    }
+}
+
+listaReceitas.addEventListener("click", tratarAcoes);
+detalhesConteudo.addEventListener("click", tratarAcoes);
+
+botaoCancelar.addEventListener("click", function () {
+    limparFormulario();
+    mostrarMensagemForm("Edição cancelada. Nenhuma alteração foi salva.", "info");
+});
+
+// Sempre que o formulário é limpo, ele volta para o modo de cadastro
+formReceita.addEventListener("reset", sairDoModoEdicao);
