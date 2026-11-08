@@ -591,3 +591,98 @@ tr:nth-child(even) {
     }
 }
 
+
+
+/* ---------- PARTE 7: Estados da aplicação com JavaScript ---------- */
+
+/* Garante que elementos com o atributo hidden fiquem escondidos */
+[hidden] {
+    display: none !important;
+}
+
+.rodape a {
+    color: #ffffff;
+}
+
+/* Erros de validação do formulário */
+.erro-campo {
+    min-height: 1.2em;
+    color: var(--tomate);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.campo-invalido {
+    border-color: var(--tomate) !important;
+    background-color: var(--tomate-claro) !important;
+}
+
+/* Formulário em modo de edição */
+.form-editando fieldset {
+    border-color: var(--mostarda);
+}
+
+/* Busca na API */
+.ferramentas-api {
+    grid-template-columns: 1fr;
+}
+
+.receita-api img {
+    aspect-ratio: 4 / 3;
+}
+
+.etiqueta-api {
+    background-color: #e3ecf7;
+    color: #1f3b63;
+}
+
+/* Lista vazia */
+.lista-mensagem {
+    grid-column: 1 / -1;
+    padding: var(--espaco-g);
+    border: 2px dashed var(--borda);
+    border-radius: var(--raio);
+    color: var(--texto-suave);
+    text-align: center;
+}
+
+/* Painel de detalhes */
+.detalhes-vazio {
+    padding: var(--espaco-g);
+    border: 2px dashed var(--borda);
+    border-radius: var(--raio);
+    color: var(--texto-suave);
+}
+
+.receita-detalhe {
+    animation: aparecer 0.3s ease-out;
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.receita-detalhe img {
+    width: 100%;
+    max-height: 340px;
+    object-fit: cover;
+}
+
+@media (min-width: 700px) {
+    .ferramentas-api {
+        grid-template-columns: 1fr auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .receita-detalhe {
+        animation: none;
+    }
+}
