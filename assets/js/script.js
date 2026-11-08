@@ -139,3 +139,186 @@ function nomeDificuldade(valor) {
 function plural(quantidade, singular, pluralTexto) {
     return quantidade === 1 ? `${quantidade} ${singular}` : `${quantidade} ${pluralTexto}`;
 }
+
+
+
+/* ---------- PARTE 2: Listagem dinâmica das receitas ---------- */
+
+const listaReceitas = document.getElementById("lista-receitas");
+const contador = document.getElementById("contador");
+const campoPesquisa = document.getElementById("pesquisa");
+const filtroCategoria = document.getElementById("filtro-categoria");
+const seletorOrdenacao = document.getElementById("ordenacao");
+
+// Deixa o texto em minúsculas e sem acentos para comparar
+function normalizarTexto(texto) {
+    return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+}
+
+// Pesquisa pelo nome ou pelos ingredientes
+function filtrarPorPesquisa(lista, termo) {
+    const termoNormalizado = normalizarTexto(termo);
+
+    if (termoNormalizado === "") {
+        return lista;
+    }
+
+    return lista.filter(function (receita) {
+        const noNome = normalizarTexto(receita.nome).includes(termoNormalizado);
+        const nosIngredientes = receita.ingredientes.some(function (ingrediente) {
+            return normalizarTexto(ingrediente).includes(termoNormalizado);
+        });
+        return noNome || nosIngredientes;
+    });
+}
+
+// Filtra pela categoria escolhida (ou só as favoritas)
+function filtrarPorCategoria(lista, categoria) {
+    if (categoria === "todas") {
+        return lista;
+    }
+    if (categoria === "favoritas") {
+        return lista.filter((receita) => receita.favorita);
+    }
+    return lista.filter((receita) => receita.categoria === categoria);
+}
+
+// Ordena uma cópia da lista sem alterar o array original
+function ordenarReceitas(lista, criterio) {
+    const copia = [...lista];
+
+    switch (criterio) {
+        case "nome-az":
+            copia.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+            break;
+        case "nome-za":
+            copia.sort((a, b) => b.nome.localeCompare(a.nome, "pt-BR"));
+            break;
+        case "tempo-menor":
+            copia.sort((a, b) => a.tempo - b.tempo);
+            break;
+        case "tempo-maior":
+            copia.sort((a, b) => b.tempo - a.tempo);
+            break;
+        default:
+            copia.sort((a, b) => b.criadaEm - a.criadaEm);
+    }
+
+    return copia;
+}
+
+// Aplica pesquisa, filtro e ordenação de acordo com os controles da tela
+function obterReceitasVisiveis() {
+    let lista = filtrarPorPesquisa(receitas, campoPesquisa.value);
+    lista = filtrarPorCategoria(lista, filtroCategoria.value);
+    return ordenarReceitas(lista, seletorOrdenacao.value);
+}
+
+// Atalho para criar um elemento já com classe e texto
+function criarElemento(tag, classe, texto) {
+    const elemento = document.createElement(tag);
+    if (classe) {
+        elemento.className = classe;
+    }
+    if (texto !== undefined) {
+        elemento.textContent = texto;
+    }
+    return elemento;
+}
+
+// Cria a imagem e troca pela imagem padrão se o link não funcionar
+function criarImagem(endereco, textoAlternativo) {
+    const imagem = document.createElement("img");
+    imagem.src = endereco || IMAGEM_PADRAO;
+    imagem.alt = textoAlternativo;
+    imagem.width = 400;
+    imagem.height = 260;
+    imagem.loading = "lazy";
+
+    imagem.addEventListener("error", function () {
+        if (!imagem.src.endsWith(IMAGEM_PADRAO)) {
+            imagem.src = IMAGEM_PADRAO;
+        }
+    });
+
+    return imagem;
+}
+
+function criarBotao(texto, classe, acao, id) {
+    const botao = criarElemento("button", `botao ${classe}`, texto);
+    botao.type = "button";
+    botao.dataset.acao = acao;
+    botao.dataset.id = id;
+    return botao;
+}
+
+// Monta o card de uma receita
+function criarCardReceita(receita) {
+    const item = document.createElement("li");
+    const artigo = criarElemento("article", "receita");
+    const corpo = criarElemento("div", "receita-corpo");
+
+    artigo.appendChild(criarImagem(receita.imagem, `Foto da receita ${receita.nome}`));
+    corpo.appendChild(criarElemento("h3", "", receita.nome));
+
+    const informacoes = criarElemento("ul", "receita-info");
+    informacoes.appendChild(criarElemento("li", "etiqueta etiqueta-categoria", nomeCategoria(receita.categoria)));
+    informacoes.appendChild(criarElemento("li", "etiqueta", `${receita.tempo} min`));
+    informacoes.appendChild(criarElemento("li", "etiqueta", plural(receita.porcoes, "porção", "porções")));
+    informacoes.appendChild(criarElemento("li", "etiqueta", nomeDificuldade(receita.dificuldade)));
+
+    if (receita.favorita) {
+        informacoes.appendChild(criarElemento("li", "etiqueta", "★ Favorita"));
+    }
+    if (receita.origem === "api") {
+        informacoes.appendChild(criarElemento("li", "etiqueta etiqueta-api", "Da internet"));
+    }
+    corpo.appendChild(informacoes);
+
+    const primeiros = receita.ingredientes.slice(0, 3).join(", ");
+    const restantes = receita.ingredientes.length - 3;
+    const resumo = restantes > 0
+        ? `Ingredientes: ${primeiros} e mais ${restantes}.`
+        : `Ingredientes: ${primeiros}.`;
+    corpo.appendChild(criarElemento("p", "", resumo));
+
+    const acoes = criarElemento("div", "acoes");
+    acoes.appendChild(criarBotao("Ver detalhes", "botao-primario", "detalhes", receita.id));
+    acoes.appendChild(criarBotao("Editar", "botao-secundario", "editar", receita.id));
+    acoes.appendChild(criarBotao("Excluir", "botao-perigo", "excluir", receita.id));
+    corpo.appendChild(acoes);
+
+    artigo.appendChild(corpo);
+    item.appendChild(artigo);
+    return item;
+}
+
+// Redesenha a listagem a partir do array de receitas
+function renderizarLista() {
+    const lista = obterReceitasVisiveis();
+    listaReceitas.replaceChildren();
+
+    if (receitas.length === 0) {
+        listaReceitas.appendChild(criarElemento("li", "lista-mensagem",
+            "Nenhuma receita cadastrada ainda. Cadastre a primeira no formulário ou importe da internet."));
+    } else if (lista.length === 0) {
+        listaReceitas.appendChild(criarElemento("li", "lista-mensagem",
+            "Nenhuma receita encontrada com essa pesquisa ou filtro."));
+    }
+
+    for (const receita of lista) {
+        listaReceitas.appendChild(criarCardReceita(receita));
+    }
+
+    if (lista.length === receitas.length) {
+        contador.textContent = `${plural(receitas.length, "receita cadastrada", "receitas cadastradas")}.`;
+    } else {
+        contador.textContent = `Mostrando ${lista.length} de ${plural(receitas.length, "receita", "receitas")}.`;
+    }
+}
+
+renderizarLista();
