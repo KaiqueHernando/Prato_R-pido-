@@ -730,3 +730,189 @@ if (ordenacaoSalva) {
     seletorOrdenacao.value = ordenacaoSalva;
     renderizarLista();
 }
+
+/* ---------- PARTE 7: Integração com a API TheMealDB ---------- */
+
+const URL_API = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+const formApi = document.getElementById("form-api");
+const campoTermoApi = document.getElementById("termo-api");
+const mensagemApi = document.getElementById("mensagem-api");
+const resultadosApi = document.getElementById("resultados-api");
+let resultadosAtuais = [];
+
+// Categorias da API (em inglês) convertidas para as categorias do sistema
+const CATEGORIAS_API = {
+    Breakfast: "cafe-da-manha",
+    Dessert: "sobremesa",
+    Starter: "lanche",
+    Side: "lanche",
+    Pasta: "almoco",
+    Beef: "almoco",
+    Chicken: "almoco",
+    Lamb: "jantar",
+    Pork: "jantar",
+    Seafood: "jantar",
+    Vegetarian: "almoco",
+    Vegan: "almoco"
+};
+
+// A API guarda os ingredientes em campos separados (strIngredient1 a 20)
+function extrairIngredientes(prato) {
+    const ingredientes = [];
+
+    for (let i = 1; i <= 20; i++) {
+        const ingrediente = prato[`strIngredient${i}`];
+        const medida = prato[`strMeasure${i}`] || "";
+
+        if (ingrediente && ingrediente.trim() !== "") {
+            ingredientes.push(`${medida.trim()} ${ingrediente.trim()}`.trim());
+        }
+    }
+
+    return ingredientes;
+}
+
+// Separa as instruções em passos e remove linhas como "STEP 1"
+function extrairPassos(texto) {
+    const passos = (texto || "")
+        .split(/\r?\n/)
+        .map((linha) => linha.trim())
+        .filter((linha) => linha !== "" && !/^(step\s*)?\d+\.?$/i.test(linha));
+
+    return passos.length > 0 ? passos : ["Modo de preparo não informado pela API."];
+}
+
+// Converte um prato da API para o formato de receita do sistema
+function converterPrato(prato) {
+    return {
+        nome: prato.strMeal,
+        categoria: CATEGORIAS_API[prato.strCategory] || "almoco",
+        tempo: 30,
+        porcoes: 2,
+        dificuldade: "media",
+        ingredientes: extrairIngredientes(prato),
+        preparo: extrairPassos(prato.strInstructions),
+        imagem: prato.strMealThumb || "",
+        favorita: false,
+        idApi: prato.idMeal
+    };
+}
+
+function jaFoiImportada(idApi) {
+    return receitas.some((receita) => receita.idApi === idApi);
+}
+
+function criarCardApi(prato) {
+    const item = document.createElement("li");
+    const artigo = criarElemento("article", "receita receita-api");
+    const corpo = criarElemento("div", "receita-corpo");
+
+    artigo.appendChild(criarImagem(prato.strMealThumb, `Foto do prato ${prato.strMeal}`));
+    corpo.appendChild(criarElemento("h3", "", prato.strMeal));
+
+    const informacoes = criarElemento("ul", "receita-info");
+    informacoes.appendChild(criarElemento("li", "etiqueta etiqueta-api", "TheMealDB"));
+    if (prato.strCategory) {
+        informacoes.appendChild(criarElemento("li", "etiqueta", prato.strCategory));
+    }
+    if (prato.strArea) {
+        informacoes.appendChild(criarElemento("li", "etiqueta", prato.strArea));
+    }
+    corpo.appendChild(informacoes);
+
+    corpo.appendChild(criarElemento("p", "", plural(extrairIngredientes(prato).length, "ingrediente", "ingredientes")));
+
+    const acoes = criarElemento("div", "acoes");
+    const botao = criarElemento("button", "botao botao-primario", "Importar para meu catálogo");
+    botao.type = "button";
+    botao.dataset.idApi = prato.idMeal;
+
+    if (jaFoiImportada(prato.idMeal)) {
+        botao.disabled = true;
+        botao.textContent = "Já está no catálogo";
+    }
+
+    acoes.appendChild(botao);
+    corpo.appendChild(acoes);
+    artigo.appendChild(corpo);
+    item.appendChild(artigo);
+    return item;
+}
+
+// Faz a requisição para a API e mostra os resultados
+async function buscarNaApi(termo) {
+    mostrarMensagem(mensagemApi, "Buscando receitas...", "info");
+    resultadosApi.replaceChildren();
+
+    try {
+        const resposta = await fetch(URL_API + encodeURIComponent(termo));
+
+        if (!resposta.ok) {
+            throw new Error(`A API respondeu com o código ${resposta.status}`);
+        }
+
+        const dados = await resposta.json();
+        resultadosAtuais = dados.meals || [];
+
+        if (resultadosAtuais.length === 0) {
+            mostrarMensagem(mensagemApi, `Nenhuma receita encontrada para "${termo}". Tente outro nome em inglês.`, "info");
+            return;
+        }
+
+        mostrarMensagem(mensagemApi,
+            `${plural(resultadosAtuais.length, "receita encontrada", "receitas encontradas")}. Clique em "Importar" para adicionar ao seu catálogo.`,
+            "sucesso");
+
+        for (const prato of resultadosAtuais.slice(0, 12)) {
+            resultadosApi.appendChild(criarCardApi(prato));
+        }
+    } catch (erro) {
+        console.error("Erro ao buscar na API:", erro);
+        mostrarMensagem(mensagemApi, "Não foi possível conectar à API agora. Verifique sua internet e tente de novo.", "erro");
+    }
+}
+
+// Importa o prato escolhido: dados da API → receita do sistema → localStorage
+function importarPrato(idApi, botao) {
+    const prato = resultadosAtuais.find((item) => item.idMeal === idApi);
+    if (!prato || jaFoiImportada(idApi)) {
+        return;
+    }
+
+    const novaReceita = {
+        id: gerarId(),
+        ...converterPrato(prato),
+        origem: "api",
+        criadaEm: Date.now()
+    };
+
+    receitas.push(novaReceita);
+    salvarReceitas();
+    renderizarLista();
+
+    botao.disabled = true;
+    botao.textContent = "Importada ✓";
+    mostrarMensagem(mensagemApi,
+        `"${novaReceita.nome}" foi importada! Ela já aparece em Receitas cadastradas. Ajuste tempo e porções em Editar, se quiser.`,
+        "sucesso");
+}
+
+formApi.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    const termo = campoTermoApi.value.trim();
+
+    if (termo.length < 2) {
+        mostrarMensagem(mensagemApi, "Digite pelo menos 2 letras para buscar.", "erro");
+        campoTermoApi.focus();
+        return;
+    }
+
+    buscarNaApi(termo);
+});
+
+resultadosApi.addEventListener("click", function (evento) {
+    const botao = evento.target.closest("button[data-id-api]");
+    if (botao) {
+        importarPrato(botao.dataset.idApi, botao);
+    }
+});
