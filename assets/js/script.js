@@ -697,3 +697,36 @@ botaoCancelar.addEventListener("click", function () {
 
 // Sempre que o formulário é limpo, ele volta para o modo de cadastro
 formReceita.addEventListener("reset", sairDoModoEdicao);
+
+/* ---------- PARTE 6: Pesquisa, filtro e ordenação ---------- */
+
+const formFiltros = document.getElementById("form-filtros");
+const CHAVE_ORDENACAO = "pratoRapido.ordenacao";
+
+// A lista é atualizada enquanto o usuário digita ou muda uma opção
+campoPesquisa.addEventListener("input", renderizarLista);
+filtroCategoria.addEventListener("change", renderizarLista);
+
+seletorOrdenacao.addEventListener("change", function () {
+    // Lembra a ordenação escolhida para a próxima visita
+    localStorage.setItem(CHAVE_ORDENACAO, seletorOrdenacao.value);
+    renderizarLista();
+});
+
+// Evita que o Enter na pesquisa recarregue a página
+formFiltros.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+});
+
+// "Limpar filtros": espera o formulário voltar ao padrão e redesenha
+formFiltros.addEventListener("reset", function () {
+    localStorage.removeItem(CHAVE_ORDENACAO);
+    setTimeout(renderizarLista, 0);
+});
+
+// Recupera a ordenação salva ao abrir a página
+const ordenacaoSalva = localStorage.getItem(CHAVE_ORDENACAO);
+if (ordenacaoSalva) {
+    seletorOrdenacao.value = ordenacaoSalva;
+    renderizarLista();
+}
