@@ -19,6 +19,7 @@
         <nav class="navegacao" aria-label="Navegação principal">
             <ul>
                 <li><a href="#cadastro">Nova receita</a></li>
+                <li><a href="#buscar-api">Buscar na internet</a></li>
                 <li><a href="#receitas" aria-current="page">Receitas</a></li>
                 <li><a href="#detalhes">Detalhes</a></li>
                 <li><a href="pages/sobre.html">Sobre</a></li>
@@ -28,14 +29,17 @@
 
     <main class="conteudo">
 
-        <!-- Cadastro da entidade principal (Receita) -->
+        <!-- Cadastro e edição da entidade principal (Receita) -->
         <section id="cadastro" class="cadastro">
-            <h2>Cadastrar receita</h2>
+            <h2 id="titulo-form">Cadastrar receita</h2>
             <p>Preencha os campos abaixo para adicionar uma nova receita ao catálogo. Campos com * são obrigatórios.</p>
 
-            <p class="mensagem mensagem-sucesso" role="status">Receita "Omelete de queijo" salva com sucesso.</p>
+            <!-- Mensagem de feedback preenchida pelo JavaScript -->
+            <p id="mensagem-form" class="mensagem" role="status" hidden></p>
 
-            <form class="form-receita" action="#" method="post">
+            <form id="form-receita" class="form-receita" novalidate>
+                <!-- Guarda o id da receita quando o formulário está em modo de edição -->
+                <input type="hidden" id="receita-id" name="receita-id">
 
                 <fieldset>
                     <legend>Informações básicas</legend>
@@ -43,12 +47,13 @@
                     <div class="grupo-campos">
                         <div class="campo campo-largo">
                             <label for="nome">Nome da receita *</label>
-                            <input type="text" id="nome" name="nome" placeholder="Ex.: Omelete de queijo" required>
+                            <input type="text" id="nome" name="nome" placeholder="Ex.: Omelete de queijo" maxlength="80">
+                            <span class="erro-campo" id="erro-nome"></span>
                         </div>
 
                         <div class="campo">
                             <label for="categoria">Categoria *</label>
-                            <select id="categoria" name="categoria" required>
+                            <select id="categoria" name="categoria">
                                 <option value="">Selecione</option>
                                 <option value="cafe-da-manha">Café da manhã</option>
                                 <option value="almoco">Almoço</option>
@@ -56,16 +61,19 @@
                                 <option value="lanche">Lanche</option>
                                 <option value="sobremesa">Sobremesa</option>
                             </select>
+                            <span class="erro-campo" id="erro-categoria"></span>
                         </div>
 
                         <div class="campo">
                             <label for="tempo">Tempo de preparo (minutos) *</label>
-                            <input type="number" id="tempo" name="tempo" min="1" max="600" placeholder="Ex.: 15" required>
+                            <input type="number" id="tempo" name="tempo" min="1" max="600" placeholder="Ex.: 15">
+                            <span class="erro-campo" id="erro-tempo"></span>
                         </div>
 
                         <div class="campo">
                             <label for="porcoes">Porções *</label>
-                            <input type="number" id="porcoes" name="porcoes" min="1" max="50" placeholder="Ex.: 2" required>
+                            <input type="number" id="porcoes" name="porcoes" min="1" max="50" placeholder="Ex.: 2">
+                            <span class="erro-campo" id="erro-porcoes"></span>
                         </div>
                     </div>
                 </fieldset>
@@ -95,17 +103,20 @@
                     <div class="grupo-campos">
                         <div class="campo">
                             <label for="ingredientes">Ingredientes (um por linha) *</label>
-                            <textarea id="ingredientes" name="ingredientes" rows="5" placeholder="Ex.: 2 ovos&#10;50 g de queijo" required></textarea>
+                            <textarea id="ingredientes" name="ingredientes" rows="5" placeholder="Ex.: 2 ovos&#10;50 g de queijo"></textarea>
+                            <span class="erro-campo" id="erro-ingredientes"></span>
                         </div>
 
                         <div class="campo">
-                            <label for="modo-preparo">Modo de preparo *</label>
-                            <textarea id="modo-preparo" name="modo-preparo" rows="5" placeholder="Descreva o passo a passo" required></textarea>
+                            <label for="modo-preparo">Modo de preparo (um passo por linha) *</label>
+                            <textarea id="modo-preparo" name="modo-preparo" rows="5" placeholder="Ex.: Bata os ovos&#10;Leve à frigideira"></textarea>
+                            <span class="erro-campo" id="erro-preparo"></span>
                         </div>
 
                         <div class="campo campo-largo">
                             <label for="imagem">Link da imagem (opcional)</label>
                             <input type="url" id="imagem" name="imagem" placeholder="https://...">
+                            <span class="erro-campo" id="erro-imagem"></span>
                         </div>
 
                         <div class="opcao campo-largo">
@@ -116,17 +127,36 @@
                 </fieldset>
 
                 <div class="acoes-form">
-                    <button type="submit" class="botao botao-primario">Salvar receita</button>
+                    <button type="submit" id="botao-salvar" class="botao botao-primario">Salvar receita</button>
                     <button type="reset" class="botao botao-secundario">Limpar</button>
+                    <button type="button" id="botao-cancelar" class="botao botao-perigo" hidden>Cancelar edição</button>
                 </div>
             </form>
         </section>
 
-        <!-- Visualização dos itens cadastrados -->
+        <!-- Busca de receitas na API pública TheMealDB -->
+        <section id="buscar-api" class="buscar-api">
+            <h2>Buscar receitas na internet</h2>
+            <p>Pesquise receitas no TheMealDB (em inglês, ex.: <em>chicken</em>, <em>pasta</em>, <em>cake</em>) e importe para o seu catálogo.</p>
+
+            <form id="form-api" class="ferramentas ferramentas-api" role="search">
+                <div class="campo campo-pesquisa">
+                    <label for="termo-api">Nome do prato (em inglês)</label>
+                    <input type="search" id="termo-api" name="termo-api" placeholder="Ex.: chicken">
+                </div>
+                <button type="submit" class="botao botao-primario">Buscar na API</button>
+            </form>
+
+            <p id="mensagem-api" class="mensagem" role="status" hidden></p>
+
+            <ul id="resultados-api" class="lista-receitas"></ul>
+        </section>
+
+        <!-- Listagem dos itens cadastrados (gerada pelo JavaScript) -->
         <section id="receitas" class="receitas">
             <h2>Receitas cadastradas</h2>
 
-            <form class="ferramentas" role="search" action="#">
+            <form id="form-filtros" class="ferramentas" role="search">
                 <div class="campo campo-pesquisa">
                     <label for="pesquisa">Pesquisar</label>
                     <input type="search" id="pesquisa" name="pesquisa" placeholder="Buscar por nome ou ingrediente">
@@ -141,12 +171,14 @@
                         <option value="jantar">Jantar</option>
                         <option value="lanche">Lanche</option>
                         <option value="sobremesa">Sobremesa</option>
+                        <option value="favoritas">Só favoritas</option>
                     </select>
                 </div>
 
                 <div class="campo">
                     <label for="ordenacao">Ordenar por</label>
                     <select id="ordenacao" name="ordenacao">
+                        <option value="recentes">Mais recentes</option>
                         <option value="nome-az">Nome (A–Z)</option>
                         <option value="nome-za">Nome (Z–A)</option>
                         <option value="tempo-menor">Menor tempo de preparo</option>
@@ -154,139 +186,26 @@
                     </select>
                 </div>
 
-                <button type="submit" class="botao botao-primario">Buscar</button>
+                <button type="reset" class="botao botao-secundario">Limpar filtros</button>
             </form>
 
-            <p class="mensagem mensagem-info" role="status">3 receitas encontradas.</p>
+            <p id="contador" class="mensagem mensagem-info" role="status"></p>
 
-            <ul class="lista-receitas">
-                <li>
-                    <article class="receita">
-                        <img src="assets/img/sem-imagem.svg" alt="Omelete de queijo dobrada no prato" width="400" height="260">
-                        <div class="receita-corpo">
-                            <h3>Omelete de queijo</h3>
-                            <ul class="receita-info">
-                                <li class="etiqueta etiqueta-categoria">Café da manhã</li>
-                                <li class="etiqueta">10 min</li>
-                                <li class="etiqueta">1 porção</li>
-                                <li class="etiqueta">Fácil</li>
-                            </ul>
-                            <p>Rápida, nutritiva e com ingredientes que quase sempre estão em casa.</p>
-                            <div class="acoes">
-                                <button type="button" class="botao botao-primario">Ver detalhes</button>
-                                <button type="button" class="botao botao-secundario">Editar</button>
-                                <button type="button" class="botao botao-perigo">Excluir</button>
-                            </div>
-                        </div>
-                    </article>
-                </li>
-
-                <li>
-                    <article class="receita">
-                        <img src="assets/img/sem-imagem.svg" alt="Prato de macarrão ao alho e óleo" width="400" height="260">
-                        <div class="receita-corpo">
-                            <h3>Macarrão alho e óleo</h3>
-                            <ul class="receita-info">
-                                <li class="etiqueta etiqueta-categoria">Almoço</li>
-                                <li class="etiqueta">20 min</li>
-                                <li class="etiqueta">2 porções</li>
-                                <li class="etiqueta">Fácil</li>
-                            </ul>
-                            <p>Um clássico simples que fica pronto no tempo de cozinhar a massa.</p>
-                            <div class="acoes">
-                                <button type="button" class="botao botao-primario">Ver detalhes</button>
-                                <button type="button" class="botao botao-secundario">Editar</button>
-                                <button type="button" class="botao botao-perigo">Excluir</button>
-                            </div>
-                        </div>
-                    </article>
-                </li>
-
-                <li>
-                    <article class="receita">
-                        <img src="assets/img/sem-imagem.svg" alt="Fatias de bolo de caneca de chocolate" width="400" height="260">
-                        <div class="receita-corpo">
-                            <h3>Bolo de caneca de chocolate</h3>
-                            <ul class="receita-info">
-                                <li class="etiqueta etiqueta-categoria">Sobremesa</li>
-                                <li class="etiqueta">5 min</li>
-                                <li class="etiqueta">1 porção</li>
-                                <li class="etiqueta">Fácil</li>
-                            </ul>
-                            <p>Feito no micro-ondas, ideal para matar a vontade de doce.</p>
-                            <div class="acoes">
-                                <button type="button" class="botao botao-primario">Ver detalhes</button>
-                                <button type="button" class="botao botao-secundario">Editar</button>
-                                <button type="button" class="botao botao-perigo">Excluir</button>
-                            </div>
-                        </div>
-                    </article>
-                </li>
-            </ul>
+            <ul id="lista-receitas" class="lista-receitas"></ul>
         </section>
 
-        <!-- Visualização dos detalhes de um item -->
+        <!-- Detalhes da receita selecionada (preenchido pelo JavaScript) -->
         <section id="detalhes" class="detalhes">
             <h2>Detalhes da receita</h2>
 
             <div class="detalhes-layout">
-                <article class="receita-detalhe">
-                    <h3>Omelete de queijo</h3>
-                    <img src="assets/img/sem-imagem.svg" alt="Omelete de queijo dobrada no prato" width="400" height="260">
+                <div id="detalhes-conteudo">
+                    <p class="detalhes-vazio">Clique em <strong>Ver detalhes</strong> em uma receita para ver as informações completas aqui.</p>
+                </div>
 
-                    <table>
-                        <caption>Informações da receita</caption>
-                        <tbody>
-                            <tr>
-                                <th scope="row">Categoria</th>
-                                <td>Café da manhã</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Tempo de preparo</th>
-                                <td>10 minutos</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Porções</th>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Dificuldade</th>
-                                <td>Fácil</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Favorita</th>
-                                <td>Sim</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h4>Ingredientes</h4>
-                    <ul>
-                        <li>2 ovos</li>
-                        <li>50 g de queijo muçarela ralado</li>
-                        <li>1 colher (chá) de manteiga</li>
-                        <li>Sal e pimenta a gosto</li>
-                    </ul>
-
-                    <h4>Modo de preparo</h4>
-                    <ol>
-                        <li>Bata os ovos com sal e pimenta.</li>
-                        <li>Derreta a manteiga em uma frigideira em fogo médio.</li>
-                        <li>Despeje os ovos e espere firmar as bordas.</li>
-                        <li>Coloque o queijo, dobre a omelete ao meio e sirva.</li>
-                    </ol>
-
-                    <div class="acoes">
-                        <button type="button" class="botao botao-secundario">Editar</button>
-                        <button type="button" class="botao botao-perigo">Excluir</button>
-                        <a href="#receitas" class="link-voltar">Voltar para a lista</a>
-                    </div>
-                </article>
-
-                <!-- Conteúdo complementar -->
                 <aside class="dicas">
                     <h3>Dica do Prato Rápido</h3>
-                    <p>Deixe ingredientes básicos já picados na geladeira para preparar as receitas em menos tempo durante a semana.</p>
+                    <p>Suas receitas ficam salvas neste navegador. Você pode fechar a página e voltar depois que elas continuam aqui.</p>
                 </aside>
             </div>
         </section>
@@ -295,7 +214,7 @@
 
     <footer class="rodape">
         <p>&copy; 2026 Prato Rápido. Trabalho da disciplina de Desenvolvimento de Interfaces Web.</p>
-        <p>Desenvolvido por Kaique Hernando Melo Monteiro.</p>
+        <p>Receitas da internet fornecidas por <a href="https://www.themealdb.com/" target="_blank" rel="noopener">TheMealDB</a>. Desenvolvido por Kaique Hernando Melo Monteiro.</p>
     </footer>
 
     <script src="assets/js/script.js"></script>
