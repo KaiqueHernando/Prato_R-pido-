@@ -322,3 +322,180 @@ function renderizarLista() {
 }
 
 renderizarLista();
+
+
+
+/* ---------- PARTE 3: Cadastro com validação e feedback ---------- */
+
+const formReceita = document.getElementById("form-receita");
+const campoId = document.getElementById("receita-id");
+const mensagemForm = document.getElementById("mensagem-form");
+let temporizadorMensagem = null;
+
+// Mostra uma mensagem de sucesso, erro ou informação em um elemento
+function mostrarMensagem(elemento, texto, tipo) {
+    elemento.textContent = texto;
+    elemento.className = `mensagem mensagem-${tipo}`;
+    elemento.hidden = false;
+}
+
+// Mensagem do formulário, que some sozinha depois de alguns segundos
+function mostrarMensagemForm(texto, tipo) {
+    mostrarMensagem(mensagemForm, texto, tipo);
+    clearTimeout(temporizadorMensagem);
+    temporizadorMensagem = setTimeout(function () {
+        mensagemForm.hidden = true;
+    }, 6000);
+}
+
+// Transforma o texto de um textarea em uma lista (uma linha = um item)
+function textoParaLista(texto) {
+    return texto
+        .split("\n")
+        .map((linha) => linha.trim())
+        .filter((linha) => linha !== "");
+}
+
+// Captura os dados digitados no formulário em um objeto
+function lerFormulario() {
+    return {
+        nome: document.getElementById("nome").value.trim(),
+        categoria: document.getElementById("categoria").value,
+        tempo: Number(document.getElementById("tempo").value),
+        porcoes: Number(document.getElementById("porcoes").value),
+        dificuldade: formReceita.querySelector('input[name="dificuldade"]:checked').value,
+        ingredientes: textoParaLista(document.getElementById("ingredientes").value),
+        preparo: textoParaLista(document.getElementById("modo-preparo").value),
+        imagem: document.getElementById("imagem").value.trim(),
+        favorita: document.getElementById("favorita").checked
+    };
+}
+
+function marcarErro(idCampo, idErro, mensagem) {
+    const campo = document.getElementById(idCampo);
+    campo.classList.add("campo-invalido");
+    campo.setAttribute("aria-invalid", "true");
+    document.getElementById(idErro).textContent = mensagem;
+}
+
+function limparErros() {
+    formReceita.querySelectorAll(".campo-invalido").forEach(function (campo) {
+        campo.classList.remove("campo-invalido");
+        campo.removeAttribute("aria-invalid");
+    });
+    formReceita.querySelectorAll(".erro-campo").forEach(function (erro) {
+        erro.textContent = "";
+    });
+}
+
+// Confere cada campo e mostra o erro embaixo dele
+function validarReceita(dados) {
+    limparErros();
+    let valido = true;
+
+    const nomeRepetido = receitas.some(function (receita) {
+        return normalizarTexto(receita.nome) === normalizarTexto(dados.nome) && receita.id !== campoId.value;
+    });
+
+    if (dados.nome.length < 3) {
+        marcarErro("nome", "erro-nome", "Informe um nome com pelo menos 3 letras.");
+        valido = false;
+    } else if (nomeRepetido) {
+        marcarErro("nome", "erro-nome", "Já existe uma receita com esse nome.");
+        valido = false;
+    }
+
+    if (!NOMES_CATEGORIAS[dados.categoria]) {
+        marcarErro("categoria", "erro-categoria", "Escolha uma categoria.");
+        valido = false;
+    }
+
+    if (!Number.isInteger(dados.tempo) || dados.tempo < 1 || dados.tempo > 600) {
+        marcarErro("tempo", "erro-tempo", "Informe um tempo entre 1 e 600 minutos.");
+        valido = false;
+    }
+
+    if (!Number.isInteger(dados.porcoes) || dados.porcoes < 1 || dados.porcoes > 50) {
+        marcarErro("porcoes", "erro-porcoes", "Informe entre 1 e 50 porções.");
+        valido = false;
+    }
+
+    if (dados.ingredientes.length === 0) {
+        marcarErro("ingredientes", "erro-ingredientes", "Informe pelo menos um ingrediente.");
+        valido = false;
+    }
+
+    if (dados.preparo.length === 0) {
+        marcarErro("modo-preparo", "erro-preparo", "Descreva pelo menos um passo do preparo.");
+        valido = false;
+    }
+
+    if (dados.imagem !== "" && !/^https?:\/\/\S+$/.test(dados.imagem)) {
+        marcarErro("imagem", "erro-imagem", "O link deve começar com http:// ou https://.");
+        valido = false;
+    }
+
+    if (!valido) {
+        formReceita.querySelector(".campo-invalido").focus();
+    }
+
+    return valido;
+}
+
+// Cria a nova receita, coloca no array e salva no localStorage
+function adicionarReceita(dados) {
+    const novaReceita = {
+        id: gerarId(),
+        ...dados,
+        origem: "manual",
+        criadaEm: Date.now()
+    };
+
+    receitas.push(novaReceita);
+    salvarReceitas();
+    return novaReceita;
+}
+
+function limparFormulario() {
+    formReceita.reset();
+    campoId.value = "";
+    limparErros();
+}
+
+formReceita.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+
+    const dados = lerFormulario();
+
+    if (!validarReceita(dados)) {
+        mostrarMensagemForm("Corrija os campos destacados em vermelho.", "erro");
+        return;
+    }
+
+    if (campoId.value) {
+        // Modo de edição (implementado na PARTE 5)
+        atualizarReceita(campoId.value, dados);
+        mostrarMensagemForm(`Receita "${dados.nome}" atualizada com sucesso.`, "sucesso");
+    } else {
+        adicionarReceita(dados);
+        mostrarMensagemForm(`Receita "${dados.nome}" salva com sucesso.`, "sucesso");
+    }
+
+    limparFormulario();
+    renderizarLista();
+});
+
+// Ao digitar em um campo com erro, o aviso daquele campo some
+formReceita.addEventListener("input", function (evento) {
+    const campo = evento.target;
+    if (campo.classList.contains("campo-invalido")) {
+        campo.classList.remove("campo-invalido");
+        campo.removeAttribute("aria-invalid");
+        const erro = campo.parentElement.querySelector(".erro-campo");
+        if (erro) {
+            erro.textContent = "";
+        }
+    }
+});
+
+formReceita.addEventListener("reset", limparErros);
